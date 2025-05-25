@@ -2,12 +2,14 @@ import React from 'react';
 import Cell from './Cell';
 import type { GameBoard, CellType, TetrominoType, Tetromino } from '../../types';
 import { getTetrominoPattern } from '../../constants/tetrominos';
+import LineClearParticles from '../Effects/LineClearParticles';
 
 interface GameBoardProps {
   board: GameBoard;
   currentPiece?: Tetromino | null;
   ghostPiece?: Tetromino | null;
   className?: string;
+  clearingLines?: number[];
 }
 
 /**
@@ -40,7 +42,7 @@ function getPieceBlocks(piece: Tetromino) {
  * - 盤面データを受け取り、セルを描画
  * - レスポンシブ&ネオンUI
  */
-const GameBoard: React.FC<GameBoardProps> = ({ board, currentPiece, ghostPiece, className = '' }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ board, currentPiece, ghostPiece, className = '', clearingLines = [] }) => {
   // ゴーストピース座標セット
   const ghostBlocks = ghostPiece ? getPieceBlocks(ghostPiece) : [];
   // アクティブピース座標セット
@@ -48,12 +50,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPiece, ghostPiece, 
 
   return (
     <div
-      className={`grid aspect-[10/20] w-full max-w-[min(90vw,400px)] bg-black/60 rounded-lg shadow-lg border-2 border-white/10 overflow-hidden ${className}`}
+      className={`relative grid aspect-[10/20] w-full max-w-[min(90vw,400px)] bg-black/60 rounded-lg shadow-lg border-2 border-white/10 overflow-hidden ${className}`}
       style={{
         gridTemplateColumns: `repeat(${board[0]?.length || 10}, 1fr)`,
         gridTemplateRows: `repeat(${board.length}, 1fr)`
       }}
     >
+      {/* パーティクルエフェクト（消去中の行ごとに表示） */}
+      {clearingLines.map(y => (
+        <LineClearParticles key={y} y={y} boardWidth={board[0]?.length || 10} show={true} />
+      ))}
+      {/* セル描画 */}
       {board.map((row, y) =>
         row.map((cell, x) => {
           // ゴーストピース優先
