@@ -37,4 +37,14 @@ export function rotateMatrixCCW<T>(matrix: T[][]): T[][] {
 /** 2次元配列を180度回転 */
 export function rotateMatrix180<T>(matrix: T[][]): T[][] {
   return rotateMatrixCW(rotateMatrixCW(matrix));
+}
+
+/**
+ * 指定座標(x, y)がボード範囲内か判定
+ * @param x X座標
+ * @param y Y座標
+ * @param board 対象ボード
+ */
+export function isInsideBoard(x: number, y: number, board: unknown[][]): boolean {
+  return y >= 0 && y < board.length && x >= 0 && x < board[0].length;
 } 

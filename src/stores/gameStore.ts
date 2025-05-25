@@ -2,13 +2,15 @@ import { create } from 'zustand';
 import type { GameState, TetrominoType, Tetromino, GameStatus, GameMode, GameSettings } from '../types';
 import { BOARD_WIDTH, BOARD_HEIGHT, DEFAULT_NEXT_PIECE_COUNT } from '../constants/game';
 
-// ゲームの初期状態
+// ゲームの初期状態生成関数
+const createInitialBoard = () => Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill('empty'));
+
 const initialState: GameState = {
   status: 'ready',
   mode: 'classic',
   startTime: 0,
   endTime: undefined,
-  board: Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill('empty')),
+  board: createInitialBoard(),
   boardWidth: BOARD_WIDTH,
   boardHeight: BOARD_HEIGHT,
   currentPiece: null,
@@ -47,5 +49,6 @@ interface GameStore {
 export const useGameStore = create<GameStore>((set) => ({
   state: initialState,
   setState: (partial) => set((store) => ({ state: { ...store.state, ...partial } })),
-  reset: () => set({ state: initialState }),
+  // ボードを含む全状態を初期化
+  reset: () => set({ state: { ...initialState, board: createInitialBoard() } }),
 })); 

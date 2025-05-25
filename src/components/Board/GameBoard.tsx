@@ -1,10 +1,22 @@
 import React from 'react';
-import type { GameBoard, CellType } from '../../types';
+import Cell from './Cell';
+import type { GameBoard, CellType, TetrominoType } from '../../types';
 
 interface GameBoardProps {
   board: GameBoard;
   className?: string;
 }
+
+/**
+ * CellTypeに対応するテトロミノ色クラスを返す
+ */
+const getCellColorClass = (cell: CellType, tetrominoType?: TetrominoType) => {
+  if (cell === 'empty') return '';
+  if (cell === 'ghost') return 'bg-white/10';
+  if (tetrominoType) return `bg-tetris-${tetrominoType}`;
+  // 仮: filled/activeはデフォルト色
+  return 'bg-white/40';
+};
 
 /**
  * Tetrisのゲームボード（グリッド）
@@ -21,14 +33,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, className = '' }) => {
       }}
     >
       {board.map((row, y) =>
-        row.map((cell, x) => (
-          <div
-            key={`${y}-${x}`}
-            className={`tetris-cell ${cell !== 'empty' ? 'filled neon-border' : ''} transition-all duration-75`}
-            data-x={x}
-            data-y={y}
-          />
-        ))
+        row.map((cell, x) => {
+          let cellType: CellType = cell;
+          let tetrominoType: TetrominoType | undefined = undefined;
+          if (typeof cell === 'string' && ['I','O','T','S','Z','J','L'].includes(cell)) {
+            tetrominoType = cell as TetrominoType;
+            cellType = 'filled';
+          }
+          return (
+            <Cell
+              key={`${y}-${x}`}
+              type={cellType}
+              tetrominoType={tetrominoType}
+              x={x}
+              y={y}
+            />
+          );
+        })
       )}
     </div>
   );
