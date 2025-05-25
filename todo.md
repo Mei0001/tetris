@@ -9,15 +9,15 @@
 - [x] **1.3** ESLint + Prettier 設定
 - [x] **1.4** Tailwind CSS セットアップ
 - [x] **1.5** プロジェクト構造の作成（src ディレクトリ構成）
-- [ ] **1.6** Git 初期化・初回コミット
+- [x] **1.6** Git 初期化・初回コミット
 
 ### Phase 2: 基盤構築 🏗️
 
-- [ ] **2.1** TypeScript型定義ファイル作成（types/index.ts）
-- [ ] **2.2** ゲーム定数定義（constants/game.ts）
-- [ ] **2.3** テトロミノ形状データ定義（constants/tetrominos.ts）
-- [ ] **2.4** 基本ユーティリティ関数作成（utils/）
-- [ ] **2.5** Zustand ストア基本構造作成（stores/gameStore.ts）
+- [x] **2.1** TypeScript型定義ファイル作成（types/index.ts）
+- [x] **2.2** ゲーム定数定義（constants/game.ts）
+- [x] **2.3** テトロミノ形状データ定義（constants/tetrominos.ts）
+- [x] **2.4** 基本ユーティリティ関数作成（utils/）
+- [x] **2.5** Zustand ストア基本構造作成（stores/gameStore.ts）
 
 ### Phase 3: 基本UI構造 🎨
 
@@ -149,11 +149,11 @@
 
 ## 📈 進捗状況
 
-**完了率**: 0% (0/90タスク)
+**完了率**: 6.7% (6/90タスク)
 
-**現在のフェーズ**: Phase 1 - プロジェクトセットアップ
+**現在のフェーズ**: Phase 2 - 基盤構築
 
-**次のマイルストーン**: Phase 1完了（基本環境構築）
+**次のマイルストーン**: Phase 2完了（型定義・定数・基本ストア作成）
 
 ## 📝 開発メモ
 
