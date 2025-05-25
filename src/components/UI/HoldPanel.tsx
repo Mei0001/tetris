@@ -1,11 +1,26 @@
 import React from 'react';
 import type { TetrominoType } from '../../types';
+import { getTetrominoPattern } from '../../constants/tetrominos';
 
 interface HoldPanelProps {
   holdPiece: TetrominoType | null;
   canHold: boolean;
   className?: string;
 }
+
+const MiniTetromino: React.FC<{ type: TetrominoType }> = ({ type }) => {
+  const pattern = getTetrominoPattern(type, 0);
+  return (
+    <div className="grid grid-cols-4 grid-rows-4 gap-[1px] w-8 h-8">
+      {pattern.flat().map((filled, i) => (
+        <div
+          key={i}
+          className={filled ? `w-2 h-2 rounded-[2px] bg-tetris-${type}` : 'w-2 h-2'}
+        />
+      ))}
+    </div>
+  );
+};
 
 /**
  * ホールドピース表示用サイドパネル
@@ -16,7 +31,7 @@ const HoldPanel: React.FC<HoldPanelProps> = ({ holdPiece, canHold, className = '
       <div className="text-lg font-bold text-neon-orange mb-1">HOLD</div>
       <div className="flex items-center justify-center w-8 h-8">
         {holdPiece ? (
-          <div className={`w-8 h-8 rounded-sm bg-tetris-${holdPiece} opacity-80 neon-border`}></div>
+          <MiniTetromino type={holdPiece} />
         ) : (
           <div className="w-8 h-8 rounded-sm border border-white/20 opacity-30" />
         )}

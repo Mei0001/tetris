@@ -23,7 +23,7 @@ const Cell: React.FC<CellProps> = ({ type, tetrominoType, x, y, className = '' }
   };
   return (
     <div
-      className={`tetris-cell transition-all duration-75 ${getColorClass()} ${type !== 'empty' ? 'filled neon-border' : ''} ${type === 'ghost' ? 'ghost' : ''} ${className}`}
+      className={`tetris-cell transition-all duration-75 ${getColorClass()} ${type !== 'empty' ? 'filled neon-border' : ''} ${type === 'ghost' ? 'ghost' : ''} ${type === 'active' ? 'ring-2 ring-white/80 brightness-125' : ''} ${className}`}
       data-x={x}
       data-y={y}
     />

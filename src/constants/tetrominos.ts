@@ -1,4 +1,5 @@
-import type { TetrominoType, RotationState, Position, TetrominoPatterns, TetrominoColors } from '../types';
+import type { TetrominoType, RotationState, Position, TetrominoPatterns, TetrominoColors, Tetromino } from '../types';
+import { SPAWN_POSITION } from './game';
 
 // ==============================
 // テトロミノカラー定義
@@ -374,4 +375,21 @@ export function generateSevenBag(): TetrominoType[] {
   }
   
   return bag;
+}
+
+/**
+ * 指定タイプのテトロミノオブジェクトを生成
+ */
+export function createTetromino(type: TetrominoType): Tetromino {
+  return {
+    type,
+    position: { ...SPAWN_POSITION },
+    rotation: 0 as RotationState,
+    shape: {
+      pattern: TETROMINO_PATTERNS[type][0],
+      color: TETROMINO_COLORS[type],
+      size: 4,
+    },
+    lockDelay: 0,
+  };
 } 
