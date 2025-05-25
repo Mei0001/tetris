@@ -1,0 +1,6 @@
+dist/
+node_modules/
+*.min.js
+*.min.css
+coverage/
+.DS_Store 

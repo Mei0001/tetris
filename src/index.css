@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');
+
+/* カスタムCSS変数 */
+:root {
+  --tetris-grid-size: 30px;
+  --tetris-border-width: 1px;
+  --game-board-width: 10;
+  --game-board-height: 20;
+}
+
+/* 基本スタイル */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', monospace;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* ゲーム関連のカスタムクラス */
+.tetris-cell {
+  width: var(--tetris-grid-size);
+  height: var(--tetris-grid-size);
+  border: var(--tetris-border-width) solid rgba(255, 255, 255, 0.1);
+  transition: all 0.1s ease;
+}
+
+.tetris-cell.filled {
+  border: var(--tetris-border-width) solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tetris-cell.ghost {
+  border: var(--tetris-border-width) dashed rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ネオンエフェクト */
+.neon-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+}
+
+.neon-border {
+  box-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    inset 0 0 5px currentColor;
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
