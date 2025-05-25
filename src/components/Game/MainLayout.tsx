@@ -1,4 +1,5 @@
 import React from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,9 +22,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* ここに将来的にメニューや設定ボタン等 */}
       </header>
       {/* メインエリア */}
-      <main className="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 p-4 md:p-8">
-        {children}
-      </main>
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={typeof children === 'string' ? children : undefined}
+          className="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 p-4 md:p-8"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -24 }}
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
       {/* フッター */}
       <footer className="w-full py-2 text-center text-xs text-white/60 bg-black/30">
         &copy; {new Date().getFullYear()} Tetris Web App
