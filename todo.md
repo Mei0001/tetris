@@ -61,11 +61,11 @@
 
 ### Phase 8: ゲーム状態管理 🎮
 
-- [ ] **8.1** ゲーム状態enum定義（playing/paused/gameOver）
-- [ ] **8.2** ゲームループ実装（requestAnimationFrame）
-- [ ] **8.3** ポーズ機能実装
-- [ ] **8.4** ゲームオーバー判定
-- [ ] **8.5** ゲームリスタート機能
+- [x] **8.1** ゲーム状態enum定義（playing/paused/gameOver）
+- [x] **8.2** ゲームループ実装（requestAnimationFrame）
+- [x] **8.3** ポーズ機能実装
+- [x] **8.4** ゲームオーバー判定
+- [x] **8.5** ゲームリスタート機能
 
 ### Phase 9: スコアシステム 📊
 
