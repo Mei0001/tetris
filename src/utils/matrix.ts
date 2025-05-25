@@ -47,4 +47,37 @@ export function rotateMatrix180<T>(matrix: T[][]): T[][] {
  */
 export function isInsideBoard(x: number, y: number, board: unknown[][]): boolean {
   return y >= 0 && y < board.length && x >= 0 && x < board[0].length;
+}
+
+/**
+ * 完成したラインのインデックス配列を返す
+ */
+export function getFullLines(board: unknown[][]): number[] {
+  return board.reduce((acc, row, i) => {
+    if (row.every(cell => cell !== 'empty')) acc.push(i);
+    return acc;
+  }, [] as number[]);
+}
+
+/**
+ * 指定したラインを消去し、上から空行を追加した新しいボードを返す
+ */
+export function clearLines(board: unknown[][], lines: number[]): unknown[][] {
+  const width = board[0].length;
+  let newBoard = board.filter((_, i) => !lines.includes(i));
+  const emptyRows = Array.from({ length: lines.length }, () => Array(width).fill('empty'));
+  return [...emptyRows, ...newBoard];
+}
+
+/**
+ * 消去後のボードを下に詰める（collapse）
+ * ※clearLinesで十分な場合は省略可
+ */
+export function collapseBoard(board: unknown[][]): unknown[][] {
+  // 空行を上に詰めるだけ
+  return board.sort((a, b) => {
+    const aEmpty = a.every(cell => cell === 'empty');
+    const bEmpty = b.every(cell => cell === 'empty');
+    return aEmpty === bEmpty ? 0 : aEmpty ? -1 : 1;
+  });
 } 

@@ -7,13 +7,14 @@ interface CellProps {
   x: number;
   y: number;
   className?: string;
+  isClearing?: boolean;
 }
 
 /**
  * ゲームボードのセル（マス）
  * - 状態・色・アニメーションをpropsで受け取る
  */
-const Cell: React.FC<CellProps> = ({ type, tetrominoType, x, y, className = '' }) => {
+const Cell: React.FC<CellProps> = ({ type, tetrominoType, x, y, className = '', isClearing }) => {
   // 色クラス
   const getColorClass = () => {
     if (type === 'empty') return '';
@@ -23,7 +24,7 @@ const Cell: React.FC<CellProps> = ({ type, tetrominoType, x, y, className = '' }
   };
   return (
     <div
-      className={`tetris-cell transition-all duration-75 ${getColorClass()} ${type !== 'empty' ? 'filled neon-border' : ''} ${type === 'ghost' ? 'ghost' : ''} ${type === 'active' ? 'ring-2 ring-white/80 brightness-125' : ''} ${className}`}
+      className={`tetris-cell transition-all duration-75 ${getColorClass()} ${type !== 'empty' ? 'filled neon-border' : ''} ${type === 'ghost' ? 'ghost' : ''} ${type === 'active' ? 'ring-2 ring-white/80 brightness-125' : ''} ${isClearing ? 'animate-clear-line' : ''} ${className}`}
       data-x={x}
       data-y={y}
     />

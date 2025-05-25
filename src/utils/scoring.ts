@@ -27,4 +27,12 @@ export function getPerfectClearBonus(): number {
 /** コンボスコアを計算 */
 export function calcComboScore(combo: number): number {
   return combo > 0 ? COMBO_BASE_SCORE * combo : 0;
+}
+
+/**
+ * ライン消去数に応じたスコアを返す（クラシックTetris基準）
+ */
+export function getLineClearScore(lines: number, level: number): number {
+  const table = [0, 40, 100, 300, 1200];
+  return (table[lines] || 0) * level;
 } 
