@@ -76,3 +76,20 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
+
+/* テトロミノ色（ネオン調） */
+.bg-tetris-I { background-color: #00FFFF !important; color: #222; }
+.bg-tetris-O { background-color: #FFFF00 !important; color: #222; }
+.bg-tetris-T { background-color: #800080 !important; color: #fff; }
+.bg-tetris-S { background-color: #00FF00 !important; color: #222; }
+.bg-tetris-Z { background-color: #FF0000 !important; color: #fff; }
+.bg-tetris-J { background-color: #0000FF !important; color: #fff; }
+.bg-tetris-L { background-color: #FFA500 !important; color: #222; }
+
+/* ネオン系テキストカラー */
+.text-neon-cyan { color: #00FFFF !important; }
+.text-neon-purple { color: #FF00FF !important; }
+.text-neon-blue { color: #0080FF !important; }
+.text-neon-green { color: #00FF80 !important; }
+.text-neon-yellow { color: #FFFF00 !important; }
+.text-neon-orange { color: #FFA500 !important; }
