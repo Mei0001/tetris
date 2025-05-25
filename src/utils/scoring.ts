@@ -35,4 +35,24 @@ export function calcComboScore(combo: number): number {
 export function getLineClearScore(lines: number, level: number): number {
   const table = [0, 40, 100, 300, 1200];
   return (table[lines] || 0) * level;
+}
+
+/**
+ * ハイスコアをlocalStorageから取得
+ */
+export function getHighScore(mode: string): number {
+  const key = `tetris_high_score_${mode}`;
+  const value = localStorage.getItem(key);
+  return value ? parseInt(value, 10) : 0;
+}
+
+/**
+ * ハイスコアをlocalStorageに保存
+ */
+export function setHighScore(mode: string, score: number): void {
+  const key = `tetris_high_score_${mode}`;
+  const prev = getHighScore(mode);
+  if (score > prev) {
+    localStorage.setItem(key, score.toString());
+  }
 } 
