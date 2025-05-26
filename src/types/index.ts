@@ -132,7 +132,7 @@ export interface GameState {
   
   // T-Spin判定用
   lastMoveWasRotation: boolean;
-  tSpinType?: 'mini' | 'regular';
+  tSpinType?: 'mini' | 'regular' | 'none';
 }
 
 // ==============================
@@ -260,3 +260,6 @@ export type {
   MenuItem,
   MenuConfig,
 } from './ui'; 
+
+// T-Spinの種類
+export type TSpinType = 'none' | 'mini' | 'regular';

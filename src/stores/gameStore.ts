@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GameState, TetrominoType, Tetromino, GameStatus, GameMode, GameSettings, Position, RotationState, TetrominoShape } from '../types';
+import type { GameState, TetrominoType, Tetromino, GameStatus, GameMode, GameSettings, Position, RotationState, TetrominoShape, TSpinType } from '../types';
 import { BOARD_WIDTH, BOARD_HEIGHT, DEFAULT_NEXT_PIECE_COUNT } from '../constants/game';
 import { INITIAL_ROTATION_STATE, TETROMINO_SHAPES } from '../constants/tetrominos';
 import { createNewTetromino } from '../utils/tetromino';
@@ -42,7 +42,7 @@ const initialState: GameState = {
   lockTimer: 0,
   linesClearedLastMove: 0,
   lastMoveWasRotation: false,
-  tSpinType: undefined,
+  tSpinType: 'none',
 };
 
 interface GameStore {
@@ -50,6 +50,8 @@ interface GameStore {
   setState: (partial: Partial<GameState> | ((state: GameState) => Partial<GameState>)) => void;
   reset: () => void;
   holdCurrentPiece: () => void;
+  setTSpinResult: (tSpinType: TSpinType) => void;
+  setLastMoveWasRotation: (wasRotation: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -103,4 +105,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }));
   },
+  setTSpinResult: (tSpinType) => set((store) => ({ state: { ...store.state, tSpinType }})),
+  setLastMoveWasRotation: (wasRotation) => set((store) => ({ state: { ...store.state, lastMoveWasRotation: wasRotation }})),
 })); 
