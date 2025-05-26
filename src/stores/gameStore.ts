@@ -28,6 +28,7 @@ const initialState: GameState = {
     level: 1,
     combo: 0,
     backToBack: false,
+    perfectClear: false,
   },
   settings: {
     autoRepeatDelay: 170,
@@ -52,6 +53,7 @@ interface GameStore {
   holdCurrentPiece: () => void;
   setTSpinResult: (tSpinType: TSpinType) => void;
   setLastMoveWasRotation: (wasRotation: boolean) => void;
+  setPerfectClear: (isPerfectClear: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -107,4 +109,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   setTSpinResult: (tSpinType) => set((store) => ({ state: { ...store.state, tSpinType }})),
   setLastMoveWasRotation: (wasRotation) => set((store) => ({ state: { ...store.state, lastMoveWasRotation: wasRotation }})),
+  setPerfectClear: (isPerfectClear) => set((store) => ({ 
+    state: { 
+      ...store.state, 
+      score: { ...store.state.score, perfectClear: isPerfectClear }
+    }
+  })),
 })); 

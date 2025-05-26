@@ -76,6 +76,7 @@ export interface ScoreData {
   level: number;
   combo: number;
   backToBack: boolean;
+  perfectClear?: boolean;
 }
 
 /** 統計情報 */

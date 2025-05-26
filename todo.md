@@ -103,7 +103,7 @@
 
 - [x] **13.1** Hold機能実装
 - [x] **13.2** T-Spin判定システム (判定ロジック utils/gameLogic.ts, ストア連携雛形)
-- [ ] **13.3** Perfect Clear判定
+- [x] **13.3** Perfect Clear判定 (判定ロジック utils/matrix.ts, ストア連携雛形)
 - [ ] **13.4** Back-to-Back ボーナス
 - [ ] **13.5** 上級スコアリング
 

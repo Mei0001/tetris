@@ -1,4 +1,4 @@
-import type { CellType } from '../types';
+import type { GameBoard, CellType, Position, TetrominoShape } from '../types';
 
 /** 2次元配列をディープコピー */
 export function cloneMatrix<T>(matrix: T[][]): T[][] {
@@ -80,4 +80,20 @@ export function collapseBoard(board: unknown[][]): unknown[][] {
     const bEmpty = b.every(cell => cell === 'empty');
     return aEmpty === bEmpty ? 0 : aEmpty ? -1 : 1;
   });
-} 
+}
+
+/**
+ * 盤面が全て空かチェックする (Perfect Clear判定用)
+ * @param board ゲーム盤面
+ * @returns boolean 全て空ならtrue
+ */
+export const isBoardEmpty = (board: GameBoard): boolean => {
+  for (let y = 0; y < board.length; y++) {
+    for (let x = 0; x < board[y].length; x++) {
+      if (board[y][x] !== 'empty') {
+        return false;
+      }
+    }
+  }
+  return true;
+}; 
