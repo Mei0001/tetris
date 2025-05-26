@@ -104,7 +104,7 @@
 - [x] **13.1** Hold機能実装
 - [x] **13.2** T-Spin判定システム (判定ロジック utils/gameLogic.ts, ストア連携雛形)
 - [x] **13.3** Perfect Clear判定 (判定ロジック utils/matrix.ts, ストア連携雛形)
-- [ ] **13.4** Back-to-Back ボーナス
+- [x] **13.4** Back-to-Back ボーナス (ストア連携準備)
 - [ ] **13.5** 上級スコアリング
 
 ### Phase 14: ゲームモード実装 🎯

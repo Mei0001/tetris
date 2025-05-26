@@ -54,6 +54,7 @@ interface GameStore {
   setTSpinResult: (tSpinType: TSpinType) => void;
   setLastMoveWasRotation: (wasRotation: boolean) => void;
   setPerfectClear: (isPerfectClear: boolean) => void;
+  setBackToBack: (isB2B: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -113,6 +114,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     state: { 
       ...store.state, 
       score: { ...store.state.score, perfectClear: isPerfectClear }
+    }
+  })),
+  setBackToBack: (isB2B) => set((store) => ({ 
+    state: { 
+      ...store.state, 
+      score: { ...store.state.score, backToBack: isB2B }
     }
   })),
 })); 
