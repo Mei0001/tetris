@@ -101,4 +101,168 @@ export async function loadAudioBuffer(url: string): Promise<AudioBuffer> {
   const res = await fetch(url);
   const arrayBuffer = await res.arrayBuffer();
   return await audioCtx.decodeAudioData(arrayBuffer);
+}
+
+// ==============================
+// 効果音システム（Phase 12.2 完全実装）
+// ==============================
+
+// プリロード済み効果音バッファ
+let sfxBuffers: Record<string, AudioBuffer | null> = {
+  move: null,
+  rotate: null,
+  lock: null,
+  lineClear: null,
+  tetris: null,
+  levelUp: null,
+  gameOver: null,
+  hold: null,
+};
+
+// 効果音ファイルパス（将来的に実音声ファイルに差し替え）
+const SFX_PATHS = {
+  move: '/src/assets/sfx/move.wav',
+  rotate: '/src/assets/sfx/rotate.wav',
+  lock: '/src/assets/sfx/lock.wav',
+  lineClear: '/src/assets/sfx/line-clear.wav',
+  tetris: '/src/assets/sfx/tetris.wav',
+  levelUp: '/src/assets/sfx/level-up.wav',
+  gameOver: '/src/assets/sfx/game-over.wav',
+  hold: '/src/assets/sfx/hold.wav',
+};
+
+// 効果音プリロード（初期化時に呼び出し）
+export async function preloadSFX() {
+  try {
+    for (const [key, path] of Object.entries(SFX_PATHS)) {
+      try {
+        sfxBuffers[key] = await loadAudioBuffer(path);
+      } catch {
+        // ファイルが存在しない場合は生成音で代替
+        sfxBuffers[key] = createBeepBuffer(key);
+      }
+    }
+  } catch (error) {
+    console.warn('SFX preload failed:', error);
+  }
+}
+
+// 仮音声生成（実ファイルがない場合の代替）
+function createBeepBuffer(type: string): AudioBuffer {
+  ensureCtx();
+  if (!audioCtx) throw new Error('AudioContext not available');
+  
+  const duration = 0.1;
+  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  
+  const freqMap: Record<string, number> = {
+    move: 220,
+    rotate: 330,
+    lock: 440,
+    lineClear: 550,
+    tetris: 660,
+    levelUp: 880,
+    gameOver: 110,
+    hold: 290,
+  };
+  
+  const frequency = freqMap[type] || 440;
+  for (let i = 0; i < data.length; i++) {
+    data[i] = Math.sin(2 * Math.PI * frequency * i / audioCtx.sampleRate) * 0.3;
+  }
+  
+  return buffer;
+}
+
+// 効果音再生関数群
+export function playSFX(type: keyof typeof sfxBuffers) {
+  const buffer = sfxBuffers[type];
+  if (buffer) {
+    playAudio(buffer, 'sfx');
+  }
+}
+
+export const SFX = {
+  move: () => playSFX('move'),
+  rotate: () => playSFX('rotate'),
+  lock: () => playSFX('lock'),
+  lineClear: () => playSFX('lineClear'),
+  tetris: () => playSFX('tetris'),
+  levelUp: () => playSFX('levelUp'),
+  gameOver: () => playSFX('gameOver'),
+  hold: () => playSFX('hold'),
+};
+
+// ==============================
+// BGMシステム（Phase 12.3 実装）
+// ==============================
+
+let currentBGM: AudioBufferSourceNode | null = null;
+let bgmBuffer: AudioBuffer | null = null;
+
+// BGM読み込み
+export async function loadBGM(url: string) {
+  try {
+    bgmBuffer = await loadAudioBuffer(url);
+  } catch {
+    // デフォルトBGM生成（仮）
+    bgmBuffer = createDefaultBGM();
+  }
+}
+
+function createDefaultBGM(): AudioBuffer {
+  ensureCtx();
+  if (!audioCtx) throw new Error('AudioContext not available');
+  
+  const duration = 30; // 30秒ループ
+  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  
+  // シンプルなテトリス風メロディ生成
+  const notes = [330, 294, 330, 392, 440, 392, 330, 294, 262, 262, 294, 330, 330, 294, 294];
+  const noteLength = audioCtx.sampleRate * 0.5;
+  
+  for (let i = 0; i < data.length; i++) {
+    const noteIndex = Math.floor(i / noteLength) % notes.length;
+    const frequency = notes[noteIndex];
+    const fade = Math.sin(Math.PI * (i % noteLength) / noteLength);
+    data[i] = Math.sin(2 * Math.PI * frequency * i / audioCtx.sampleRate) * 0.1 * fade;
+  }
+  
+  return buffer;
+}
+
+// BGM再生
+export function playBGM() {
+  if (!bgmBuffer) return;
+  stopBGM();
+  const source = playAudio(bgmBuffer, 'bgm', { loop: true });
+  currentBGM = source || null;
+}
+
+// BGM停止
+export function stopBGM() {
+  if (currentBGM) {
+    currentBGM.stop();
+    currentBGM = null;
+  }
+}
+
+// BGM一時停止・再開
+export function pauseBGM() {
+  if (!audioCtx) return;
+  audioCtx.suspend();
+}
+
+export function resumeBGM() {
+  if (!audioCtx) return;
+  audioCtx.resume();
+}
+
+// 初期化（アプリ起動時に呼び出し推奨）
+export async function initAudio() {
+  ensureCtx();
+  await preloadSFX();
+  await loadBGM('/src/assets/bgm/tetris-theme.mp3');
 } 
