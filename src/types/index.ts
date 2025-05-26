@@ -43,12 +43,8 @@ export type GameMode =
 // ゲームオブジェクト型定義
 // ==============================
 
-/** テトロミノ形状データ */
-export interface TetrominoShape {
-  pattern: boolean[][];
-  color: string;
-  size: number;
-}
+/** テトロミノ形状データ (パターンのみ) */
+export type TetrominoShape = boolean[][];
 
 /** テトロミノオブジェクト */
 export interface Tetromino {
@@ -119,8 +115,8 @@ export interface GameState {
   
   // ピース情報
   currentPiece: Tetromino | null;
-  nextPieces: TetrominoType[];
-  holdPiece: TetrominoType | null;
+  nextPieces: Tetromino[];
+  holdPiece: Tetromino | null;
   canHold: boolean;
   
   // スコア・レベル

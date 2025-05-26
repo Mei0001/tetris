@@ -1,3 +1,5 @@
+import type { Position, CellType, TetrominoType, GameStatus, GameMode, GameSettings, RotationState } from '../types';
+
 // ==============================
 // ゲームボード定数
 // ==============================
@@ -141,6 +143,9 @@ export const NEON_COLORS = {
   orange: '#FF8000',
 } as const;
 
+/** 初期回転状態 */
+export const INITIAL_ROTATION_STATE: RotationState = 0;
+
 // ==============================
 // キーマッピング定数
 // ==============================
@@ -150,11 +155,10 @@ export const DEFAULT_KEY_BINDINGS = {
   moveLeft: ['ArrowLeft', 'KeyA'],
   moveRight: ['ArrowRight', 'KeyD'],
   softDrop: ['ArrowDown', 'KeyS'],
-  hardDrop: ['Space', 'ArrowUp', 'KeyW'],
-  rotateClockwise: ['KeyX', 'KeyL', 'ArrowUp'],
-  rotateCounterclockwise: ['KeyZ', 'KeyJ'],
-  rotate180: ['KeyA'],
-  hold: ['KeyC', 'Shift'],
+  hardDrop: ['Space'],
+  rotateClockwise: ['ArrowUp', 'KeyX', 'KeyK'],
+  rotateCounterclockwise: ['ControlLeft', 'KeyZ', 'KeyJ'],
+  hold: ['KeyC', 'ShiftLeft'],
   pause: ['Escape', 'KeyP'],
   restart: ['KeyR'],
 } as const;

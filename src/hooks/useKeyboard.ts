@@ -1,21 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { DEFAULT_KEY_BINDINGS } from '../constants/game';
+import { useGameStore } from '../stores/gameStore';
 
 export type KeyboardAction = keyof typeof DEFAULT_KEY_BINDINGS;
 
 interface UseKeyboardOptions {
-  onAction: (action: KeyboardAction, event: KeyboardEvent) => void;
+  onAction?: (action: KeyboardAction, event: KeyboardEvent) => void;
   keyBindings?: Partial<Record<KeyboardAction, string[]>>;
-  das?: number; // Delayed Auto Shift (ms)
-  arr?: number; // Auto Repeat Rate (ms)
+  das?: number;
+  arr?: number;
 }
 
 /**
  * キーボード入力ハンドリング（DAS/ARR対応・カスタムキーマッピング）
  */
 export function useKeyboard({ onAction, keyBindings = {}, das = 170, arr = 0 }: UseKeyboardOptions) {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
   const repeatKeyRef = useRef<string | null>(null);
+  const holdCurrentPiece = useGameStore((s) => s.holdCurrentPiece);
 
   // マージしたキーマップ
   const mergedBindings = { ...DEFAULT_KEY_BINDINGS, ...keyBindings };
@@ -26,11 +28,11 @@ export function useKeyboard({ onAction, keyBindings = {}, das = 170, arr = 0 }: 
         const keys = mergedBindings[action as KeyboardAction] || [];
         if (keys.includes(e.code) || keys.includes(e.key)) {
           if (repeatKeyRef.current !== e.code) {
-            onAction(action as KeyboardAction, e);
+            onAction?.(action as KeyboardAction, e);
             repeatKeyRef.current = e.code;
             if (timerRef.current) clearTimeout(timerRef.current);
             timerRef.current = setTimeout(function repeat() {
-              onAction(action as KeyboardAction, e);
+              onAction?.(action as KeyboardAction, e);
               timerRef.current = setTimeout(repeat, arr);
             }, das);
           }

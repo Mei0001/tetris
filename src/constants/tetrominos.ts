@@ -1,5 +1,11 @@
-import type { TetrominoType, RotationState, Position, TetrominoPatterns, TetrominoColors, Tetromino } from '../types';
+import type { TetrominoType, RotationState, Position, TetrominoPatterns, TetrominoColors, Tetromino, TetrominoShape } from '../types';
 import { SPAWN_POSITION } from './game';
+
+// ==============================
+// 基本定数
+// ==============================
+export const BOARD_WIDTH = 10; // ゲームボードの幅
+export const INITIAL_ROTATION_STATE: RotationState = 0; // 初期回転状態
 
 // ==============================
 // テトロミノカラー定義
@@ -14,7 +20,7 @@ export const TETROMINO_COLORS: TetrominoColors = {
   Z: '#FF0000', // レッド
   J: '#0000FF', // ブルー
   L: '#FFA500', // オレンジ
-} as const;
+};
 
 // ==============================
 // テトロミノ形状パターン（SRS準拠）
@@ -25,7 +31,7 @@ export const TETROMINO_COLORS: TetrominoColors = {
  * 各回転状態（0,1,2,3）での4x4グリッド内の形状
  * true = ブロックあり, false = 空
  */
-export const TETROMINO_PATTERNS: TetrominoPatterns = {
+export const TETROMINO_SHAPES: TetrominoPatterns = {
   // I-piece（直線）
   I: {
     0: [
@@ -220,7 +226,7 @@ export const TETROMINO_PATTERNS: TetrominoPatterns = {
       [false, true,  false, false],
       [false, true,  false, false],
     ],
-  ],
+  },
 } as const;
 
 // ==============================
@@ -272,8 +278,10 @@ export const SPAWN_OFFSETS: Record<TetrominoType, Position> = {
   L: { x: 0, y: 0 },
 } as const;
 
-/** テトロミノの7-bagシーケンス */
-export const TETROMINO_TYPES: readonly TetrominoType[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'] as const;
+// ==============================
+// テトロミノタイプ配列
+// ==============================
+export const TETROMINO_TYPES: TetrominoType[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
 
 // ==============================
 // ヘルパー関数
@@ -295,13 +303,6 @@ export function getNextRotation(current: RotationState, clockwise: boolean = tru
   } else {
     return ((current + 3) % 4) as RotationState;
   }
-}
-
-/**
- * テトロミノの形状パターンを取得
- */
-export function getTetrominoPattern(type: TetrominoType, rotation: RotationState): boolean[][] {
-  return TETROMINO_PATTERNS[type][rotation];
 }
 
 /**
@@ -386,7 +387,7 @@ export function createTetromino(type: TetrominoType): Tetromino {
     position: { ...SPAWN_POSITION },
     rotation: 0 as RotationState,
     shape: {
-      pattern: TETROMINO_PATTERNS[type][0],
+      pattern: TETROMINO_SHAPES[type][0],
       color: TETROMINO_COLORS[type],
       size: 4,
     },
