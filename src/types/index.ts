@@ -99,6 +99,9 @@ export interface GameSettings {
   ghostPiece: boolean;        // ゴーストピース表示
   holdEnabled: boolean;       // ホールド機能
   nextPieceCount: number;     // 次のピース表示数
+  sfxVolume: number;          // 効果音ボリューム
+  musicVolume: number;        // BGMボリューム
+  muted: boolean;             // ミュート状態
 }
 
 /** メインゲーム状態 */
@@ -133,7 +136,7 @@ export interface GameState {
   
   // T-Spin判定用
   lastMoveWasRotation: boolean;
-  tSpinType?: 'mini' | 'regular' | 'none';
+  tSpinType: TSpinType;
 }
 
 // ==============================

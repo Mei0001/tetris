@@ -1,4 +1,4 @@
-import type { GameBoard, CellType, Position, TetrominoShape } from '../types';
+import type { GameBoard, CellType, Position, TetrominoShape, Tetromino } from '../types';
 
 /** 2次元配列をディープコピー */
 export function cloneMatrix<T>(matrix: T[][]): T[][] {
@@ -45,27 +45,28 @@ export function rotateMatrix180<T>(matrix: T[][]): T[][] {
  * @param y Y座標
  * @param board 対象ボード
  */
-export function isInsideBoard(x: number, y: number, board: unknown[][]): boolean {
-  return y >= 0 && y < board.length && x >= 0 && x < board[0].length;
+export function isInsideBoard(x: number, y: number, board: GameBoard): boolean {
+  return y >= 0 && y < board.length && x >= 0 && x < (board[0]?.length || 0);
 }
 
 /**
  * 完成したラインのインデックス配列を返す
  */
-export function getFullLines(board: unknown[][]): number[] {
+export function getFullLines(board: GameBoard): number[] {
   return board.reduce((acc, row, i) => {
-    if (row.every(cell => cell !== 'empty')) acc.push(i);
+    if (row.every(cell => cell === 'filled')) acc.push(i);
     return acc;
   }, [] as number[]);
 }
 
 /**
- * 指定したラインを消去し、上から空行を追加した新しいボードを返す
+ * 指定したラインを消去し、上のブロックを下に詰めた新しいボードを返す
  */
-export function clearLines(board: unknown[][], lines: number[]): unknown[][] {
-  const width = board[0].length;
+export function removeLinesAndShiftDown(board: GameBoard, lines: number[]): GameBoard {
+  const width = board[0]?.length || 0;
+  if (width === 0) return [];
   let newBoard = board.filter((_, i) => !lines.includes(i));
-  const emptyRows = Array.from({ length: lines.length }, () => Array(width).fill('empty'));
+  const emptyRows = Array.from({ length: lines.length }, () => Array(width).fill('empty' as CellType));
   return [...emptyRows, ...newBoard];
 }
 
@@ -73,8 +74,8 @@ export function clearLines(board: unknown[][], lines: number[]): unknown[][] {
  * 消去後のボードを下に詰める（collapse）
  * ※clearLinesで十分な場合は省略可
  */
-export function collapseBoard(board: unknown[][]): unknown[][] {
-  // 空行を上に詰めるだけ
+export function collapseBoard(board: GameBoard): GameBoard {
+  if (board.length === 0 || board[0].length === 0) return [];
   return board.sort((a, b) => {
     const aEmpty = a.every(cell => cell === 'empty');
     const bEmpty = b.every(cell => cell === 'empty');
@@ -96,4 +97,28 @@ export const isBoardEmpty = (board: GameBoard): boolean => {
     }
   }
   return true;
+};
+
+/**
+ * 指定されたピースを盤面に固定（マージ）した新しい盤面を返す
+ * @param board 現在の盤面
+ * @param piece 固定するピース
+ * @returns ピースが固定された新しい盤面
+ */
+export const placePieceOnBoard = (board: GameBoard, piece: Tetromino): GameBoard => {
+  const newBoard = cloneMatrix(board);
+  const { shape, position, type } = piece;
+
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape[y].length; x++) {
+      if (shape[y][x]) {
+        const boardX = position.x + x;
+        const boardY = position.y + y;
+        if (boardY >= 0 && boardY < newBoard.length && boardX >= 0 && boardX < (newBoard[0]?.length || 0)) {
+          newBoard[boardY][boardX] = 'filled';
+        }
+      }
+    }
+  }
+  return newBoard;
 }; 

@@ -386,11 +386,7 @@ export function createTetromino(type: TetrominoType): Tetromino {
     type,
     position: { ...SPAWN_POSITION },
     rotation: 0 as RotationState,
-    shape: {
-      pattern: TETROMINO_SHAPES[type][0],
-      color: TETROMINO_COLORS[type],
-      size: 4,
-    },
+    shape: TETROMINO_SHAPES[type][0],
     lockDelay: 0,
   };
 } 

@@ -105,11 +105,11 @@
 - [x] **13.2** T-Spin判定システム (判定ロジック utils/gameLogic.ts, ストア連携雛形)
 - [x] **13.3** Perfect Clear判定 (判定ロジック utils/matrix.ts, ストア連携雛形)
 - [x] **13.4** Back-to-Back ボーナス (ストア連携準備)
-- [ ] **13.5** 上級スコアリング
+- [x] **13.5** 上級スコアリング (utils/scoring.ts に updateScore 関数を実装し、T-Spin、Perfect Clear、Back-to-Back、コンボを考慮したスコア計算処理を統合)
 
 ### Phase 14: ゲームモード実装 🎯
 
-- [ ] **14.1** Classic Mode完成
+- [x] **14.1** Classic Mode完成 (コアゲームロジックの gameStore への実装完了: ゲームループ制御、ピース操作、ライン処理、スコアリング、SRS回転など)
 - [ ] **14.2** Sprint Mode（40ライン）
 - [ ] **14.3** Zen Mode（無限）
 - [ ] **14.4** モード選択UI
@@ -149,11 +149,11 @@
 
 ## 📈 進捗状況
 
-**完了率**: 65.6% (59/90タスク)
+**完了率**: 66.7% (60/90タスク)
 
-**現在のフェーズ**: Phase 12 - 音響システム
+**現在のフェーズ**: Phase 13 - 高度なゲーム機能
 
-**次のマイルストーン**: Phase 12完了（Web Audio API・効果音・BGM・音量調整・設定保存）
+**次のマイルストーン**: Phase 13完了（Hold機能、T-Spin判定、Perfect Clear判定、Back-to-Backボーナス、上級スコアリング）
 
 ## 📝 開発メモ
 

@@ -1,4 +1,4 @@
-import type { GameBoard, Tetromino, Position, TSpinType, RotationState } from '../types';
+import type { GameBoard, Tetromino, Position, TSpinType, RotationState, TetrominoShape } from '../types';
 
 // 仮のヘルパー関数 (本来は utils/matrix.ts などからimport)
 const isInsideBoard = (position: Position, boardWidth: number, boardHeight: number): boolean => {
@@ -124,4 +124,84 @@ export const checkTSpin = (
   }
 
   return 'none';
+};
+
+/**
+ * ピースが盤面境界内であり、かつ他の固定ブロックと衝突しないかを判定する
+ * @param board 現在の盤面
+ * @param pieceShape チェックするピースの形状
+ * @param position チェックするピースの左上基点の盤面上の位置
+ * @returns 衝突していればtrue、していなければfalse
+ */
+export const checkCollision = (
+  board: GameBoard,
+  pieceShape: TetrominoShape,
+  position: Position
+): boolean => {
+  for (let y = 0; y < pieceShape.length; y++) {
+    for (let x = 0; x < pieceShape[y].length; x++) {
+      if (pieceShape[y][x]) { // ピースのブロックがある部分のみチェック
+        const boardX = position.x + x;
+        const boardY = position.y + y;
+
+        // 1. 盤面境界チェック
+        if (boardX < 0 || boardX >= board[0].length || boardY < 0 || boardY >= board.length) {
+          return true; // 盤面外
+        }
+
+        // 2. 他の固定ブロックとの衝突チェック
+        if (board[boardY][boardX] === 'filled') {
+          return true; // 固定ブロックと衝突
+        }
+      }
+    }
+  }
+  return false; // 衝突なし
+};
+
+/**
+ * ハードドロップ時のピースの最終Y座標を計算する
+ * @param board 現在の盤面
+ * @param piece 現在のピースオブジェクト
+ * @returns 最終的なY座標
+ */
+export const getHardDropPosition = (
+  board: GameBoard,
+  piece: Tetromino
+): Position => {
+  let currentY = piece.position.y;
+  while (!checkCollision(board, piece.shape, { x: piece.position.x, y: currentY + 1 })) {
+    currentY++;
+  }
+  return { x: piece.position.x, y: currentY };
+};
+
+/**
+ * 完成したラインの行インデックス配列を返す
+ * @param board 現在の盤面
+ * @returns 完成したラインの行番号の配列 (例: [18, 19])
+ */
+export const checkLineClears = (board: GameBoard): number[] => {
+  const lines: number[] = [];
+  for (let y = 0; y < board.length; y++) {
+    if (board[y].every(cell => cell === 'filled')) {
+      lines.push(y);
+    }
+  }
+  return lines;
+};
+
+/**
+ * ゲームオーバー状態か判定する
+ * (新しいピースがスポーン位置で既に衝突しているか)
+ * @param board 現在の盤面
+ * @param piece スポーンする新しいピース
+ * @returns ゲームオーバーならtrue、そうでなければfalse
+ */
+export const checkGameOver = (
+  board: GameBoard,
+  piece: Tetromino
+): boolean => {
+  // スポーン位置はピースの初期位置 (通常y=0だが、バッファゾーンを考慮する場合もある)
+  return checkCollision(board, piece.shape, piece.position);
 }; 
