@@ -1,7 +1,6 @@
 import type { Tetromino, TetrominoType, RotationState, TetrominoShape, Position, GameBoard } from '../types';
 import { TETROMINO_SHAPES, INITIAL_ROTATION_STATE, BOARD_WIDTH, SRS_WALL_KICKS_JLSTZ, SRS_WALL_KICKS_I, getWallKickData as getWallKickDataConstant, getNextRotation as getNextRotationConstant } from '../constants/tetrominos';
 import { checkCollision } from './gameLogic'; // checkCollision をインポート
-// import { getRandomTetrominoType } from './randomizer'; // TODO: パス解決
 
 /**
  * 指定されたテトロミノタイプと回転状態に基づいて形状データを取得する
