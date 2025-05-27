@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useCallback, Suspense } from 'react';
+import React, { useEffect, useRef, useCallback, Suspense, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useKeyboard, type KeyboardAction } from '../../hooks/useKeyboard';
+import { useTouch, type TouchAction } from '../../hooks/useTouch';
 import { LEVEL_SPEEDS, FRAME_INTERVAL } from '../../constants/game';
 import Board from '../Board/Board';
 import ScorePanel from '../UI/ScorePanel';
@@ -38,6 +39,22 @@ const Game: React.FC = () => {
   const lastUpdateTimeRef = useRef<number>(0);
   const fallAccumulatorRef = useRef<number>(0);
   const setMode = useGameStore((s) => s.setState);
+
+  // 画面回転・リサイズ対応
+  const [isPortrait, setIsPortrait] = useState(false);
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isPort = window.innerHeight > window.innerWidth;
+      setIsPortrait(isPort);
+    };
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
 
   const handleKeyboardAction = useCallback(
     (action: KeyboardAction) => {
@@ -87,6 +104,38 @@ const Game: React.FC = () => {
   );
 
   useKeyboard({ onAction: handleKeyboardAction });
+
+  // タッチ操作ハンドラ
+  const handleTouchAction = useCallback(
+    (action: TouchAction) => {
+      if (gameState.status !== 'playing') return;
+      switch (action) {
+        case 'moveLeft':
+          movePiece('left');
+          break;
+        case 'moveRight':
+          movePiece('right');
+          break;
+        case 'softDrop':
+          movePiece('down');
+          break;
+        case 'hardDrop':
+          hardDrop();
+          break;
+        case 'rotateClockwise':
+          rotatePiece(true);
+          break;
+        case 'rotateCounterclockwise':
+          rotatePiece(false);
+          break;
+        case 'hold':
+          holdCurrentPiece();
+          break;
+      }
+    },
+    [gameState.status, movePiece, rotatePiece, hardDrop, holdCurrentPiece]
+  );
+  useTouch({ onAction: handleTouchAction });
 
   const gameTick = useCallback(
     (timestamp: number) => {
@@ -143,6 +192,15 @@ const Game: React.FC = () => {
     }
   }, [gameState.status]);
 
+  // PWA: Service Worker登録
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white p-4 select-none">
       <h1 className="text-4xl font-bold mb-8 text-neon-cyan">TETRIS</h1>
@@ -191,6 +249,13 @@ const Game: React.FC = () => {
       {/* <div className='mt-4 text-xs text-gray-500'>
         Status: {gameState.status}, Level: {gameState.score.level}, Score: {gameState.score.score}, Lines: {gameState.score.lines}
       </div> */}
+
+      {isPortrait && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
+          <p className="text-2xl text-neon-yellow font-bold mb-2">横向きでのプレイを推奨します</p>
+          <p className="text-white text-base">画面を回転してください</p>
+        </div>
+      )}
     </div>
   );
 };

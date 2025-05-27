@@ -1,0 +1,21 @@
+{
+  "name": "Tetris Web App",
+  "short_name": "Tetris",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#18181b",
+  "theme_color": "#00ffff",
+  "description": "高品質なUI/UXのモダンテトリスWebアプリ",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
