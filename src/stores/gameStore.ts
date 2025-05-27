@@ -1,12 +1,12 @@
 import { create } from 'zustand';
-import type { GameState, TetrominoType, Tetromino, GameStatus, GameMode, GameSettings, Position, RotationState, TetrominoShape, TSpinType, Direction, CellType, GameBoard, ScoreData } from '../types';
-import { BOARD_WIDTH, BOARD_HEIGHT, DEFAULT_NEXT_PIECE_COUNT, DEFAULT_AUDIO_SETTINGS, HARD_DROP_SCORE, SOFT_DROP_SCORE } from '../constants/game';
-import { INITIAL_ROTATION_STATE, TETROMINO_SHAPES } from '../constants/tetrominos';
-import { createNewTetromino, getRotatedShapeAndPosition } from '../utils/tetromino';
-import { getRandomTetrominoType } from '../utils/randomizer'; // 7-bagランダマイザ
-import { checkCollision, checkTSpin, getHardDropPosition, checkLineClears, checkGameOver } from '../utils/gameLogic'; // 衝突判定とT-Spin判定
-import { placePieceOnBoard, removeLinesAndShiftDown, isBoardEmpty } from '../utils/matrix';
-import { updateScore } from '../utils/scoring';
+import type { GameState, TetrominoType, Tetromino, GameStatus, GameMode, GameSettings, Position, RotationState, TetrominoShape, TSpinType, Direction, CellType, GameBoard, ScoreData } from '@types';
+import { BOARD_WIDTH, BOARD_HEIGHT, DEFAULT_NEXT_PIECE_COUNT, DEFAULT_AUDIO_SETTINGS, HARD_DROP_SCORE, SOFT_DROP_SCORE } from '@constants/game';
+import { INITIAL_ROTATION_STATE, TETROMINO_SHAPES } from '@constants/tetrominos';
+import { createNewTetromino, getRotatedShapeAndPosition } from '@utils/tetromino';
+import { getRandomTetrominoType } from '@utils/randomizer'; // 7-bagランダマイザ
+import { checkCollision, checkTSpin, getHardDropPosition, checkLineClears, checkGameOver } from '@utils/gameLogic'; // 衝突判定とT-Spin判定
+import { placePieceOnBoard, removeLinesAndShiftDown, isBoardEmpty } from '@utils/matrix';
+import { updateScore } from '@utils/scoring';
 // import { getRotatedShapeAndPosition } from '../utils/tetromino'; // 回転ロジック (後で使う)
 
 // ゲームの初期状態生成関数
@@ -20,6 +20,7 @@ const initialState: GameState = {
   mode: 'classic',
   startTime: 0,
   endTime: undefined,
+  elapsedTime: 0,
   board: createInitialBoard(),
   boardWidth: BOARD_WIDTH,
   boardHeight: BOARD_HEIGHT,
@@ -34,7 +35,10 @@ const initialState: GameState = {
     combo: 0,
     backToBack: false,
     perfectClear: false,
+    time: undefined,
   },
+  sprintLinesGoal: undefined,
+  sprintLinesCleared: 0,
   settings: {
     autoRepeatDelay: 170,
     autoRepeatRate: 0,
@@ -64,6 +68,7 @@ interface GameStoreActions {
   pauseGame: () => void;
   resumeGame: () => void;
   gameOver: () => void;
+  setElapsedTime: (time: number) => void;
 }
 
 interface GameStore extends GameStoreActions {
@@ -96,7 +101,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // 新規アクションの雛形
   startGame: () => {
-    const { state, setState } = get();
+    const { state, setState, reset } = get();
+    reset();
+
     const firstPieceType = getRandomTetrominoType();
     const firstPieceShape = getInitialShape(firstPieceType);
     const firstPiece: Tetromino = {
@@ -109,15 +116,36 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const newNextPieces = Array.from({ length: state.settings.nextPieceCount }, () => createNewTetromino(state.boardWidth));
 
+    let sprintModeSetup = {};
+    if (state.mode === 'sprint') {
+      sprintModeSetup = {
+        sprintLinesGoal: 40,
+        sprintLinesCleared: 0,
+        score: {
+          ...initialState.score,
+          score: 0, lines: 0, level: 1, time: undefined,
+        },
+      };
+    }
+    let zenModeSetup = {};
+    if (state.mode === 'zen') {
+      zenModeSetup = {
+        score: {
+          ...initialState.score,
+          score: 0, lines: 0, level: 1, time: undefined,
+        },
+      };
+    }
+
     setState((currentGlobalState) => ({
-      ...initialState, 
       status: 'playing',
-      board: createInitialBoard(),
       currentPiece: firstPiece,
-      nextPieces: newNextPieces,
-      holdPiece: null,
-      canHold: true,
       startTime: Date.now(),
+      elapsedTime: 0,
+      endTime: undefined,
+      score: state.mode === 'sprint' ? (sprintModeSetup as any).score : state.mode === 'zen' ? (zenModeSetup as any).score : { ...initialState.score, score: 0, lines: 0, level: 1 },
+      ...sprintModeSetup,
+      ...zenModeSetup,
       settings: currentGlobalState.settings,
     }));
     // TODO: BGM再生開始
@@ -193,26 +221,33 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   lockPieceAndSpawnNext: () => {
     const { state, setState, clearLinesAndUpdateScore, gameOver, setTSpinResult } = get();
-    if (!state.currentPiece) return;
+    if (!state.currentPiece || state.status === 'completed') return;
 
     const newBoard = placePieceOnBoard(state.board, state.currentPiece);
     const clearedLines = checkLineClears(newBoard);
 
+    let gameJustCompleted = false;
+
     if (clearedLines.length > 0) {
       clearLinesAndUpdateScore(clearedLines);
-      // clearLinesAndUpdateScore内でPerfectClearも判定・セットされる想定
-    } else if (state.tSpinType !== 'none') {
-      // T-Spin No Lines (T-Spin Mini No Lines も含む)
+      if (get().state.status === 'completed') {
+        gameJustCompleted = true;
+      }
+    } else if (state.mode === 'classic' && state.tSpinType !== 'none') {
       const newScoreData = updateScore(state.score, { linesCleared: 0, tSpinType: state.tSpinType, isPerfectClear: false });
       setState({ score: newScoreData });
     }
-    setTSpinResult('none'); // T-Spin状態をリセット
+    setTSpinResult('none');
 
-    // 新しいピースをスポーン
+    if (gameJustCompleted) {
+      setState({ board: removeLinesAndShiftDown(newBoard, clearedLines), currentPiece: null, endTime: Date.now() });
+      return;
+    }
+
     const nextPieceFromQueue = state.nextPieces[0];
     const newNextPieces = [...state.nextPieces.slice(1), createNewTetromino(state.boardWidth)];
     
-    if (!nextPieceFromQueue) { // Nextピースがない異常系、ゲームオーバーに近いが一旦エラーとしておく
+    if (!nextPieceFromQueue) {
         console.error("Next piece is undefined in lockPieceAndSpawnNext");
         gameOver();
         return;
@@ -221,15 +256,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newCurrentPiece: Tetromino = {
         ...nextPieceFromQueue,
         position: { x: Math.floor((state.boardWidth - (nextPieceFromQueue.shape[0]?.length || 0)) / 2), y: 0 },
-        // rotation と lockDelay は nextPieceFromQueue (createNewTetromino由来) の値を使用
     };
 
-    if (checkGameOver(newBoard, newCurrentPiece)) {
-      setState({ board: newBoard, status: 'gameOver', endTime: Date.now(), currentPiece: null }); // ピースを固定してからゲームオーバー
-      // gameOver(); // gameOverアクションは最終的な状態セットのみなので、ここでは直接状態を更新
+    const finalBoard = clearedLines.length > 0 ? removeLinesAndShiftDown(newBoard, clearedLines) : newBoard;
+    if (checkGameOver(finalBoard, newCurrentPiece)) {
+      setState({ board: finalBoard, status: 'gameOver', endTime: Date.now(), currentPiece: null });
     } else {
       setState({
-        board: clearedLines.length > 0 ? removeLinesAndShiftDown(newBoard, clearedLines) : newBoard, // ライン消去後の盤面、またはそのままの盤面
+        board: finalBoard,
         currentPiece: newCurrentPiece,
         nextPieces: newNextPieces,
         canHold: true,
@@ -240,27 +274,44 @@ export const useGameStore = create<GameStore>((set, get) => ({
   clearLinesAndUpdateScore: (clearedLines) => {
     const { state, setState, setPerfectClear } = get();
     
-    const boardAfterClear = removeLinesAndShiftDown(state.board, clearedLines); // 先に盤面からラインを消す
+    const boardAfterClear = removeLinesAndShiftDown(state.board, clearedLines);
     const isPc = isBoardEmpty(boardAfterClear);
     if(isPc) {
-        setPerfectClear(true); // ストアのperfectClearフラグを更新
+        setPerfectClear(true);
     }
 
-    const scoreUpdateEvent = {
-        linesCleared: clearedLines.length,
-        tSpinType: state.tSpinType, // T-Spin状態を渡す
-        isPerfectClear: isPc,
-    };
-    const newScoreData = updateScore(state.score, scoreUpdateEvent);
-
-    setState(prev => ({
-      // board: boardAfterClear, // lockPieceAndSpawnNext で盤面更新するため、ここではスコア関連のみ
-      score: newScoreData,
-      linesClearedLastMove: clearedLines.length,
-      // levelとcomboはnewScoreDataに含まれる
-      // backToBackもnewScoreDataに含まれる
-    }));
-    // TODO: ライン消去エフェクト/サウンドトリガー
+    if (state.mode === 'sprint') {
+      const newSprintLinesCleared = (state.sprintLinesCleared || 0) + clearedLines.length;
+      let sprintCompleted = false;
+      if (state.sprintLinesGoal && newSprintLinesCleared >= state.sprintLinesGoal) {
+        sprintCompleted = true;
+      }
+      setState(prev => ({
+        sprintLinesCleared: newSprintLinesCleared,
+        score: {
+          ...prev.score,
+          lines: newSprintLinesCleared,
+          time: sprintCompleted ? state.elapsedTime : prev.score.time,
+        },
+        status: sprintCompleted ? 'completed' : prev.status,
+        endTime: sprintCompleted ? Date.now() : prev.endTime,
+        linesClearedLastMove: clearedLines.length,
+      }));
+      if (sprintCompleted) {
+        return; 
+      }
+    } else if (state.mode === 'classic' || state.mode === 'zen') {
+        const scoreUpdateEvent = {
+            linesCleared: clearedLines.length,
+            tSpinType: state.tSpinType, 
+            isPerfectClear: isPc,
+        };
+        const newScoreData = updateScore(state.score, scoreUpdateEvent);
+        setState(prev => ({
+          score: newScoreData,
+          linesClearedLastMove: clearedLines.length,
+        }));
+    }
   },
 
   pauseGame: () => {
@@ -344,4 +395,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setBackToBack: (isB2B) => get().setState(prev => ({ 
     score: { ...prev.score, backToBack: isB2B }
   })),
+  setElapsedTime: (time) => get().setState({ elapsedTime: time }),
 })); 

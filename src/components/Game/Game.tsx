@@ -5,6 +5,8 @@ import { LEVEL_SPEEDS, FRAME_INTERVAL } from '../../constants/game';
 import Board from '../Board/Board';
 import ScorePanel from '../UI/ScorePanel';
 import NextPanel from '../UI/NextPanel';
+import ModeSelect from '../UI/ModeSelect';
+import StatisticsPanel from '../UI/StatisticsPanel';
 
 // 仮のプレースホルダーコンポーネント
 // const BoardPlaceholder: React.FC = () => <div className="w-64 h-[480px] bg-gray-700 flex items-center justify-center text-white">Board Area</div>;
@@ -35,6 +37,7 @@ const Game: React.FC = () => {
   const gameLoopRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
   const fallAccumulatorRef = useRef<number>(0);
+  const setMode = useGameStore((s) => s.setState);
 
   const handleKeyboardAction = useCallback(
     (action: KeyboardAction) => {
@@ -158,7 +161,12 @@ const Game: React.FC = () => {
 
       {gameState.status === 'ready' && (
         <div className="mt-8 p-4 bg-black bg-opacity-50 rounded-lg">
-          <p className="text-xl text-yellow-400 animate-pulse">Press SPACE to Start</p>
+          <ModeSelect
+            onSelect={(mode) => {
+              setMode({ mode });
+              setTimeout(() => startGame(), 0);
+            }}
+          />
         </div>
       )}
       {gameState.status === 'paused' && (
@@ -174,6 +182,11 @@ const Game: React.FC = () => {
           <p className="text-xl text-yellow-400 animate-pulse">Press SPACE to Restart</p>
         </div>
       )}
+
+      {/* モード別統計パネル */}
+      <div className="mt-10 w-full flex justify-center">
+        <StatisticsPanel />
+      </div>
       {/* デバッグ情報として現在の状態を表示（本番では削除） */}
       {/* <div className='mt-4 text-xs text-gray-500'>
         Status: {gameState.status}, Level: {gameState.score.level}, Score: {gameState.score.score}, Lines: {gameState.score.lines}

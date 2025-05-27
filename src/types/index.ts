@@ -77,6 +77,7 @@ export interface ScoreData {
   combo: number;
   backToBack: boolean;
   perfectClear?: boolean;
+  time?: number;
 }
 
 /** 統計情報 */
@@ -111,6 +112,7 @@ export interface GameState {
   mode: GameMode;
   startTime: number;
   endTime?: number;
+  elapsedTime?: number;
   
   // ボード状態
   board: GameBoard;
@@ -125,6 +127,10 @@ export interface GameState {
   
   // スコア・レベル
   score: ScoreData;
+  
+  // Sprint Mode用
+  sprintLinesGoal?: number;
+  sprintLinesCleared?: number;
   
   // ゲーム設定
   settings: GameSettings;
